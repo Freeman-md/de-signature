@@ -4,7 +4,10 @@ This file defines the repository-wide engineering rules and the entry point for 
 
 ## Project architecture
 
-`freemancodz-v4` is a Next.js App Router modular monolith.
+`de-signature` is a Next.js App Router event landing page. This milestone is a
+frontend-only site; it intentionally has no database, API, payment or worker
+layer. Keep future server-side integrations inside feature-owned boundaries
+when they are introduced.
 
 Next.js is the rendering host and Backend-for-Frontend boundary for this project. It is not permission to mix React, HTTP transport, database access, OpenAI orchestration and worker logic in the same files.
 
