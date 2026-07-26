@@ -34,13 +34,13 @@ https://wa.me/<number>?text=Hi%2C%20I'd%20like%20to%20reserve%20the%20%E2%82%A61
 
 The integrated flow creates a message containing the chosen package and selected seat labels. Its final action stays disabled until one package and at least one seat are selected. If the number is unset or malformed, all WhatsApp actions are deliberately disabled and the page states that reservations are being set up. No misleading link is generated.
 
-`NEXT_PUBLIC_SITE_URL` is optional during development and required for production metadata that needs an absolute URL. Set it to the public `http://` or `https://` origin, optionally with a deployment base path, and without credentials, a query string, a fragment, or a trailing slash. For example:
+`NEXT_PUBLIC_SITE_URL` is optional during development and required for production metadata that needs an absolute URL. Set it to the public `http://` or `https://` origin, without a deployment path, credentials, query string, fragment, or trailing slash. For example:
 
 ```text
 NEXT_PUBLIC_SITE_URL=https://your-confirmed-domain.com
 ```
 
-The application validates and normalises this value. Missing, malformed, localhost, and `.local` values do not break development or builds. Instead, canonical metadata, absolute Open Graph and X image URLs, the robots sitemap reference, the sitemap home entry, and canonical-site structured data are deliberately omitted. The public page remains indexable and no localhost or placeholder production URL is emitted.
+The application validates and normalises this value. Missing, malformed, non-root-path, localhost/loopback, and `.local` values do not break development or builds. Instead, canonical metadata, absolute Open Graph and X image URLs, the robots sitemap reference, the sitemap home entry, and canonical-site structured data are deliberately omitted. The public page remains indexable and no localhost or placeholder production URL is emitted.
 
 ## Metadata and sharing
 

@@ -23,8 +23,33 @@ export type SiteMetadataConfig = {
   }>;
 };
 
-const localHostnames = new Set(["localhost", "127.0.0.1", "::1"]);
 const reservedHostnames = new Set(["example.com", "example.net", "example.org"]);
+
+function normalizeHostname(url: URL): string {
+  const hostnameWithoutTrailingDot = url.hostname.toLowerCase().replace(/\.$/, "");
+
+  if (hostnameWithoutTrailingDot !== url.hostname) {
+    url.hostname = hostnameWithoutTrailingDot;
+  }
+
+  return hostnameWithoutTrailingDot.replace(/^\[(.*)\]$/, "$1");
+}
+
+function isLoopbackHostname(hostname: string): boolean {
+  const ipv4Octets = hostname.split(".");
+  const isIpv4Address =
+    ipv4Octets.length === 4 &&
+    ipv4Octets.every((octet) => /^\d{1,3}$/.test(octet) && Number(octet) <= 255);
+  const isIpv4Loopback = isIpv4Address && Number(ipv4Octets[0]) === 127;
+
+  return (
+    hostname === "localhost" ||
+    hostname.endsWith(".localhost") ||
+    hostname === "::1" ||
+    hostname === "0.0.0.0" ||
+    isIpv4Loopback
+  );
+}
 
 export function normalizeSiteUrl(value: string | undefined): string | undefined {
   const candidate = value?.trim();
@@ -35,29 +60,31 @@ export function normalizeSiteUrl(value: string | undefined): string | undefined 
 
   try {
     const url = new URL(candidate);
+    const hostname = normalizeHostname(url);
     const hasSupportedProtocol = url.protocol === "https:" || url.protocol === "http:";
-    const isLocalHostname = localHostnames.has(url.hostname) || url.hostname.endsWith(".local");
+    const isLocalHostname = isLoopbackHostname(hostname) || hostname.endsWith(".local");
     const isReservedHostname =
       [...reservedHostnames].some(
-        (hostname) => url.hostname === hostname || url.hostname.endsWith(`.${hostname}`),
+        (reservedHostname) =>
+          hostname === reservedHostname || hostname.endsWith(`.${reservedHostname}`),
       ) ||
-      [".example", ".invalid", ".test"].some((suffix) => url.hostname.endsWith(suffix));
+      [".example", ".invalid", ".test"].some((suffix) => hostname.endsWith(suffix));
     const hasCredentials = Boolean(url.username || url.password);
     const hasQueryOrFragment = Boolean(url.search || url.hash);
+    const hasNonRootPath = url.pathname !== "/";
 
     if (
       !hasSupportedProtocol ||
       isLocalHostname ||
       isReservedHostname ||
       hasCredentials ||
-      hasQueryOrFragment
+      hasQueryOrFragment ||
+      hasNonRootPath
     ) {
       return undefined;
     }
 
-    const path = url.pathname === "/" ? "" : url.pathname.replace(/\/+$/, "");
-
-    return `${url.origin}${path}`;
+    return url.origin;
   } catch {
     return undefined;
   }

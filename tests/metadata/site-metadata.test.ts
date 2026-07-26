@@ -7,8 +7,9 @@ describe("site URL normalisation", () => {
   it.each([
     ["https://signatureparty.ng", "https://signatureparty.ng"],
     ["https://signatureparty.ng/", "https://signatureparty.ng"],
-    [" https://signatureparty.ng/events/// ", "https://signatureparty.ng/events"],
     ["http://signatureparty.ng:8080/", "http://signatureparty.ng:8080"],
+    [" https://SIGNATUREPARTY.NG./ ", "https://signatureparty.ng"],
+    ["https://127.signatureparty.ng/", "https://127.signatureparty.ng"],
   ])("normalises %s", (input, expected) => {
     expect(normalizeSiteUrl(input)).toBe(expected);
   });
@@ -19,7 +20,15 @@ describe("site URL normalisation", () => {
     "not a URL",
     "ftp://the-signature.example",
     "https://localhost:3000",
+    "https://app.localhost",
+    "http://localhost.",
     "http://127.0.0.1:3000",
+    "http://127.0.0.2",
+    "http://127.255.255.255",
+    "http://127.1",
+    "http://[::1]:3000",
+    "http://[0:0:0:0:0:0:0:1]",
+    "http://0.0.0.0",
     "https://signature.local",
     "https://the-signature.example",
     "https://example.com",
@@ -29,6 +38,9 @@ describe("site URL normalisation", () => {
     "https://user:password@signatureparty.ng",
     "https://signatureparty.ng?preview=true",
     "https://signatureparty.ng/#packages",
+    "https://signatureparty.ng/events",
+    "https://signatureparty.ng/events/",
+    "https://signatureparty.ng//",
   ])("rejects missing, malformed, or non-production values (%s)", (input) => {
     expect(normalizeSiteUrl(input)).toBeUndefined();
   });
@@ -49,7 +61,7 @@ describe("root metadata", () => {
   });
 
   it("builds canonical and absolute social URLs from a valid site URL", () => {
-    const config = createSiteMetadata("https://signatureparty.ng///");
+    const config = createSiteMetadata("https://signatureparty.ng/");
     const metadata = createRootMetadata(config);
     const socialImageUrl = "https://signatureparty.ng/opengraph-image.png";
 
