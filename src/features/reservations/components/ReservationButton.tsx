@@ -5,11 +5,17 @@ import { createWhatsAppReservationLink } from "../whatsapp";
 
 type ReservationButtonProps = Pick<ButtonProps, "className" | "variant"> & {
   price: number;
+  phoneNumber?: string | null;
   children: React.ReactNode;
 };
 
-export function ReservationButton({ price, children, ...buttonProps }: ReservationButtonProps) {
-  const href = createWhatsAppReservationLink(price);
+export function ReservationButton({
+  price,
+  phoneNumber,
+  children,
+  ...buttonProps
+}: ReservationButtonProps) {
+  const href = createWhatsAppReservationLink(price, phoneNumber);
 
   if (!href) {
     return (

@@ -14,4 +14,18 @@ describe("reservation packages", () => {
   it("formats package values as Nigerian naira", () => {
     expect(formatNaira(1_000_000)).toBe("₦1,000,000");
   });
+
+  it("uses The Signature branding in every platter name", () => {
+    const platterNames = reservationPackages.flatMap((reservationPackage) =>
+      reservationPackage.items
+        .map((item) => item.name)
+        .filter((name) => name.includes("Signature")),
+    );
+
+    expect(platterNames).toEqual([
+      "The Signature Platter",
+      "The Signature Platter",
+      "The Signature Platter",
+    ]);
+  });
 });
