@@ -22,6 +22,15 @@ npm test
 npm run build
 ```
 
+The immersive selector also has focused browser and visual-regression coverage:
+
+```bash
+PLAYWRIGHT_BROWSERS_PATH=0 npx playwright install chromium
+npm run test:browser
+```
+
+The browser suite covers `320 × 568`, `390 × 844`, `768 × 1024`, and `1440 × 900`, including page overflow, seat reachability, keyboard selection, reduced motion, and stable narrow/desktop selector screenshots. Run `npm run test:browser:update` only after intentionally reviewing a visual change.
+
 ## Configuration
 
 `NEXT_PUBLIC_WHATSAPP_RESERVATION_PHONE` is required before reservation buttons become active. Use international digits only, without spaces or a leading `+` (for example, `2348012345678`). It is a public browser configuration value, not a secret.
@@ -73,9 +82,17 @@ After deployment, inspect the production link in WhatsApp, LinkedIn, Facebook, a
 ## Edit event content and assets
 
 - Reservation packages and their item values live in `src/features/reservations/content.ts`. The package cards read only from this typed source of truth.
-- Decks, visual seat groups, labels `A` through `T`, and seat ordering live in `src/features/reservations/seat-map.ts`.
+- Decks, visual seat groups, labels `A` through `T`, seat ordering, and normalised placement data live in `src/features/reservations/seat-map.ts`. Each seat has one percentage-based `x`, `y`, `width`, and `height` plus a `chair` or `lounge-segment` variant. Reposition a seat by changing only those visual fields; its label and deck remain its identity.
 - Package-only and seat-aware reservation messages plus phone validation live in `src/features/reservations/whatsapp.ts`.
 - Replace the approved flyer at `public/images/de-signature-flyer.png` with a similarly sized, licensed image. Update the image dimensions and alternative text in `src/app/page.tsx` if the replacement differs.
+
+## Boat-plan rendering
+
+The selector uses three deliberate layers: custom inline SVG structure, native HTML seat buttons positioned from the canonical coordinate model, and normal semantic headings, guidance, legend, and summary. The upper-deck and lower-cabin hull artwork lives in `src/features/reservations/components/BoatDeckArtwork.tsx`; it is decorative and hidden from assistive technology. Reservation state stays in the focused `ReservationFlow` Client Component and the 20 accessible buttons remain ordinary keyboard-operable controls.
+
+On viewports narrower than `1024px`, the selector shows one deck at a time through the `Upper Deck` / `Lower Deck` control. The buttons include each deck's selected count, and switching only changes the visible plan—package and seat selections remain intact. At larger sizes both plans appear together.
+
+After editing the illustration or coordinates, run the unit suite to validate seat identity and bounds, then run the browser suite to verify all targets remain reachable without horizontal overflow and compare the narrow/desktop screenshots. This is an interactive preference map only: it does not hold, book, confirm, or report the availability of a seat.
 
 ## Deploy to Vercel
 

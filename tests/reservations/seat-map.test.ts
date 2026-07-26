@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 
 import {
   boatDecks,
+  isSeatPlacementInsideDeck,
   lowerDeckSeatGroups,
+  seatMap,
   seatLabels,
   sortSeatLabels,
   upperDeckSeatGroups,
@@ -37,5 +39,37 @@ describe("boat seat map", () => {
     expect(sortSeatLabels(["T", "K", "B", "J", "A"])).toEqual([
       "A", "B", "J", "K", "T",
     ]);
+  });
+
+  it("gives every seat one unique, valid visual placement", () => {
+    expect(seatMap).toHaveLength(20);
+    expect(seatMap.every(isSeatPlacementInsideDeck)).toBe(true);
+    expect(
+      seatMap.every(
+        (seat) =>
+          seat.width > 0 &&
+          seat.height > 0 &&
+          ["chair", "lounge-segment"].includes(seat.variant),
+      ),
+    ).toBe(true);
+
+    const placements = seatMap.map(
+      (seat) => `${seat.deck}:${seat.x}:${seat.y}:${seat.width}:${seat.height}`,
+    );
+    expect(new Set(placements).size).toBe(seatMap.length);
+    expect(new Set(seatMap.map((seat) => seat.label)).size).toBe(seatMap.length);
+  });
+
+  it("keeps chair and lounge visuals attached to their intended decks", () => {
+    expect(
+      seatMap
+        .filter((seat) => seat.deck === "upper")
+        .every((seat) => seat.variant === "chair"),
+    ).toBe(true);
+    expect(
+      seatMap
+        .filter((seat) => seat.deck === "lower")
+        .every((seat) => seat.variant === "lounge-segment"),
+    ).toBe(true);
   });
 });

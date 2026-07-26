@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:browser": "PLAYWRIGHT_BROWSERS_PATH=0 playwright test",
+    "test:browser:update": "PLAYWRIGHT_BROWSERS_PATH=0 playwright test --update-snapshots"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.1.2",
@@ -21,6 +23,7 @@
     "tailwind-merge": "^2.5.5"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.0",
     "@testing-library/react": "^16.1.0",
     "@types/node": "^22.10.2",
     "@types/react": "^19.0.2",
