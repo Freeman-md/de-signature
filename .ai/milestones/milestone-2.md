@@ -1,6 +1,6 @@
 # Milestone 2: The Signature Boat Seat Selection
 
-**Status:** Active  
+**Status:** Frozen
 **Version:** 1.0.1  
 **Last Updated:** 2026-07-26  
 **Depends On:** Milestone 1  

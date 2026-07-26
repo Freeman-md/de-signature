@@ -17,7 +17,7 @@ export const reservationPackages = [
       { name: "Don Julio", value: 850_000 },
       { name: "Bumbu Cream", value: 500_000 },
       { name: "Belaire Rosé", quantity: 2, value: 600_000 },
-      { name: "De Signature Platter", value: 50_000 },
+      { name: "The Signature Platter", value: 50_000 },
     ],
   },
   {
@@ -26,7 +26,7 @@ export const reservationPackages = [
       { name: "Casamigos", value: 500_000 },
       { name: "Rémy Martin VSOP", value: 300_000 },
       { name: "Crema di Cappuccino", value: 150_000 },
-      { name: "De Signature Platter", value: 50_000 },
+      { name: "The Signature Platter", value: 50_000 },
     ],
   },
   {
@@ -34,7 +34,7 @@ export const reservationPackages = [
     items: [
       { name: "Hennessy VSOP", value: 300_000 },
       { name: "Piccini Moscato", value: 150_000 },
-      { name: "De Signature Platter", value: 50_000 },
+      { name: "The Signature Platter", value: 50_000 },
     ],
   },
 ] as const satisfies readonly ReservationPackage[];

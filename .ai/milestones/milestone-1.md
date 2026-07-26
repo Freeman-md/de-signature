@@ -1,6 +1,6 @@
 # Milestone 1: Deployable Reservation Landing Page
 
-**Status:** Frozen  
+**Status:** Archived
 **Version:** 1.0.0  
 **Last Updated:** 2026-07-25  
 **Depends On:** none  
