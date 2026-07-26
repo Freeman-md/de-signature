@@ -1,25 +1,16 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 
+import { createRootMetadata } from "@/app/create-root-metadata";
+import { siteMetadata } from "@/lib/site-metadata";
 import "./globals.css";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "");
-const socialImage = siteUrl
-  ? [{ url: "/images/de-signature-flyer.png", width: 1080, height: 1246, alt: "The Signature Party flyer" }]
-  : undefined;
+export const metadata: Metadata = createRootMetadata(siteMetadata);
 
-export const metadata: Metadata = {
-  metadataBase: siteUrl ? new URL(siteUrl) : undefined,
-  title: "The Signature | A curated night out",
-  description: "The Signature is an exclusive, reservation-led experience with music by DJ Ozone.",
-  alternates: siteUrl ? { canonical: "/" } : undefined,
-  openGraph: {
-    title: "The Signature",
-    description: "Good people. Great vibes. A curated, reservation-led experience.",
-    images: socialImage,
-  },
-  twitter: { card: "summary_large_image", title: "The Signature", description: "A curated, reservation-led experience.", images: siteUrl ? ["/images/de-signature-flyer.png"] : undefined },
+export const viewport: Viewport = {
+  colorScheme: "dark",
+  themeColor: siteMetadata.themeColor,
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body>{children}</body></html>;
+  return <html lang={siteMetadata.language}><body>{children}</body></html>;
 }

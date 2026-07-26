@@ -25,5 +25,6 @@ describe("the public reservation page", () => {
     expect(page).toContain("Lower Deck");
     expect(page).toContain("Available");
     expect(page).toContain("Selected");
+    expect(page).not.toContain("application/ld+json");
   });
 });
