@@ -26,13 +26,13 @@ export type SiteMetadataConfig = {
 const reservedHostnames = new Set(["example.com", "example.net", "example.org"]);
 
 function normalizeHostname(url: URL): string {
-  const hostnameWithoutTrailingDot = url.hostname.toLowerCase().replace(/\.$/, "");
+  const hostnameWithoutTrailingDots = url.hostname.toLowerCase().replace(/\.+$/, "");
 
-  if (hostnameWithoutTrailingDot !== url.hostname) {
-    url.hostname = hostnameWithoutTrailingDot;
+  if (hostnameWithoutTrailingDots !== url.hostname) {
+    url.hostname = hostnameWithoutTrailingDots;
   }
 
-  return hostnameWithoutTrailingDot.replace(/^\[(.*)\]$/, "$1");
+  return hostnameWithoutTrailingDots.replace(/^\[(.*)\]$/, "$1");
 }
 
 function isLoopbackHostname(hostname: string): boolean {
@@ -41,13 +41,17 @@ function isLoopbackHostname(hostname: string): boolean {
     ipv4Octets.length === 4 &&
     ipv4Octets.every((octet) => /^\d{1,3}$/.test(octet) && Number(octet) <= 255);
   const isIpv4Loopback = isIpv4Address && Number(ipv4Octets[0]) === 127;
+  const embeddedIpv4 = hostname.match(/^::(?:ffff:)?([0-9a-f]{1,4}):[0-9a-f]{1,4}$/i);
+  const isEmbeddedIpv4Loopback =
+    embeddedIpv4 !== null && (Number.parseInt(embeddedIpv4[1], 16) & 0xff00) === 0x7f00;
 
   return (
     hostname === "localhost" ||
     hostname.endsWith(".localhost") ||
     hostname === "::1" ||
     hostname === "0.0.0.0" ||
-    isIpv4Loopback
+    isIpv4Loopback ||
+    isEmbeddedIpv4Loopback
   );
 }
 

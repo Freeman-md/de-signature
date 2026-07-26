@@ -9,7 +9,9 @@ describe("site URL normalisation", () => {
     ["https://signatureparty.ng/", "https://signatureparty.ng"],
     ["http://signatureparty.ng:8080/", "http://signatureparty.ng:8080"],
     [" https://SIGNATUREPARTY.NG./ ", "https://signatureparty.ng"],
+    ["https://SIGNATUREPARTY.NG.../", "https://signatureparty.ng"],
     ["https://127.signatureparty.ng/", "https://127.signatureparty.ng"],
+    ["https://[2606:4700:4700::1111]/", "https://[2606:4700:4700::1111]"],
   ])("normalises %s", (input, expected) => {
     expect(normalizeSiteUrl(input)).toBe(expected);
   });
@@ -22,12 +24,23 @@ describe("site URL normalisation", () => {
     "https://localhost:3000",
     "https://app.localhost",
     "http://localhost.",
+    "http://localhost..",
+    "http://localhost....:3000",
+    "http://app.localhost...",
     "http://127.0.0.1:3000",
     "http://127.0.0.2",
     "http://127.255.255.255",
     "http://127.1",
     "http://[::1]:3000",
     "http://[0:0:0:0:0:0:0:1]",
+    "http://[::ffff:127.0.0.1]",
+    "http://[0:0:0:0:0:ffff:127.0.0.1]",
+    "http://[::ffff:7f00:1]",
+    "http://[::ffff:7fff:ffff]",
+    "http://[::127.0.0.1]",
+    "http://[0:0:0:0:0:0:127.255.255.255]",
+    "http://[::7f00:1]",
+    "http://[::7fff:ffff]",
     "http://0.0.0.0",
     "https://signature.local",
     "https://the-signature.example",
@@ -76,7 +89,22 @@ describe("root metadata", () => {
     ]);
   });
 
-  it.each([undefined, "invalid", "https://localhost:3000"])(
+  it.each([
+    undefined,
+    "invalid",
+    "https://localhost:3000",
+    "http://localhost..",
+    "http://localhost....:3000",
+    "http://app.localhost...",
+    "http://[::ffff:127.0.0.1]",
+    "http://[0:0:0:0:0:ffff:127.0.0.1]",
+    "http://[::ffff:7f00:1]",
+    "http://[::ffff:7fff:ffff]",
+    "http://[::127.0.0.1]",
+    "http://[0:0:0:0:0:0:127.255.255.255]",
+    "http://[::7f00:1]",
+    "http://[::7fff:ffff]",
+  ])(
     "omits absolute URL fields safely for %s",
     (siteUrl) => {
       const metadata = createRootMetadata(createSiteMetadata(siteUrl));
