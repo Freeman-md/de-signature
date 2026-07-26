@@ -1,11 +1,11 @@
-import { Anchor, ShipWheel } from "lucide-react";
+"use client";
 
-import {
-  boatDecks,
-  lowerDeckSeatGroups,
-  upperDeckSeatGroups,
-  type SeatLabel,
-} from "../seat-map";
+import { Anchor, Compass } from "lucide-react";
+import { useState } from "react";
+
+import { cn } from "@/lib/utils";
+import { boatDecks, type DeckId, type SeatLabel } from "../seat-map";
+import { BoatDeckArtwork } from "./BoatDeckArtwork";
 import { SeatButton } from "./SeatButton";
 
 type BoatSeatSelectorProps = {
@@ -13,116 +13,112 @@ type BoatSeatSelectorProps = {
   onToggleSeat: (label: SeatLabel) => void;
 };
 
-function SeatGroup({
-  deckLabel,
-  labels,
-  selectedSeats,
-  onToggleSeat,
-}: BoatSeatSelectorProps & {
-  deckLabel: string;
-  labels: readonly SeatLabel[];
-}) {
-  return (
-    <div className="grid grid-cols-5 gap-1 sm:gap-3">
-      {labels.map((label) => (
-        <SeatButton
-          key={label}
-          deckLabel={deckLabel}
-          label={label}
-          isSelected={selectedSeats.includes(label)}
-          onToggle={onToggleSeat}
-        />
-      ))}
-    </div>
+function selectedCountForDeck(deck: DeckId, selectedSeats: readonly SeatLabel[]) {
+  const deckLabels = new Set(
+    boatDecks.find((candidate) => candidate.id === deck)?.seats.map((seat) => seat.label),
   );
+  return selectedSeats.filter((label) => deckLabels.has(label)).length;
 }
 
 export function BoatSeatSelector({
   selectedSeats,
   onToggleSeat,
 }: BoatSeatSelectorProps) {
-  const upperDeck = boatDecks[0];
-  const lowerDeck = boatDecks[1];
+  const [activeDeck, setActiveDeck] = useState<DeckId>("upper");
 
   return (
-    <div className="mt-9 grid gap-7 xl:grid-cols-2">
-      <article
-        aria-labelledby="upper-deck-heading"
-        className="relative overflow-hidden rounded-[4rem_4rem_2rem_2rem] border border-ink/15 bg-[#eadbc8] px-3 pb-8 pt-12 text-ink shadow-xl sm:px-8"
+    <div className="mt-9" data-testid="boat-seat-selector">
+      <div
+        aria-label="Choose a deck to inspect"
+        className="mx-auto grid max-w-md grid-cols-2 rounded-full border border-ink/15 bg-white/60 p-1.5 shadow-sm lg:hidden"
+        role="group"
       >
-        <div className="absolute left-1/2 top-3 h-5 w-16 -translate-x-1/2 rounded-t-full border border-ink/20 bg-ivory" aria-hidden="true" />
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-ember">Open air</p>
-            <h3 id="upper-deck-heading" className="mt-1 font-serif text-3xl">{upperDeck.label}</h3>
-            <p className="mt-2 max-w-md text-sm leading-6 text-ink/70">{upperDeck.description} Multiple seats welcome.</p>
-          </div>
-          <div className="rounded-2xl border border-ink/15 bg-ivory/70 p-3 text-center text-xs font-bold uppercase tracking-wider text-ink/65">
-            <ShipWheel className="mx-auto mb-1" size={20} aria-hidden="true" />
-            Driver
-          </div>
-        </div>
-        <div className="mx-auto mt-8 max-w-sm">
-          <SeatGroup
-            deckLabel={upperDeck.label}
-            labels={upperDeckSeatGroups[0]}
-            selectedSeats={selectedSeats}
-            onToggleSeat={onToggleSeat}
-          />
-          <div className="my-4 flex items-center gap-3 text-[0.65rem] font-bold uppercase tracking-[0.28em] text-ink/45" aria-hidden="true">
-            <span className="h-px flex-1 bg-ink/20" />
-            Central aisle
-            <span className="h-px flex-1 bg-ink/20" />
-          </div>
-          <SeatGroup
-            deckLabel={upperDeck.label}
-            labels={upperDeckSeatGroups[1]}
-            selectedSeats={selectedSeats}
-            onToggleSeat={onToggleSeat}
-          />
-        </div>
-      </article>
+        {boatDecks.map((deck) => {
+          const selectedCount = selectedCountForDeck(deck.id, selectedSeats);
+          const countText = selectedCount === 1 ? "1 selected" : `${selectedCount} selected`;
 
-      <article
-        aria-labelledby="lower-deck-heading"
-        className="relative overflow-hidden rounded-[2rem_2rem_4rem_4rem] border border-ivory/20 bg-[#2a1915] px-3 pb-12 pt-8 text-ivory shadow-xl sm:px-8"
-      >
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#e59065]">Enclosed cabin</p>
-            <h3 id="lower-deck-heading" className="mt-1 font-serif text-3xl">{lowerDeck.label}</h3>
-            <p className="mt-2 max-w-md text-sm leading-6 text-ivory/70">{lowerDeck.description}</p>
-          </div>
-          <div className="rounded-2xl border border-ivory/15 bg-ivory/5 p-3 text-center text-xs font-bold uppercase tracking-wider text-ivory/65">
-            <Anchor className="mx-auto mb-1" size={20} aria-hidden="true" />
-            Crew
-          </div>
-        </div>
-        <div className="mx-auto mt-8 max-w-sm">
-          <div className="rounded-[2rem] border border-ivory/15 bg-ivory/5 p-3 sm:p-4">
-            <p className="mb-3 text-center text-[0.65rem] font-bold uppercase tracking-[0.24em] text-sand">Lounge side one</p>
-            <SeatGroup
-              deckLabel={lowerDeck.label}
-              labels={lowerDeckSeatGroups[0]}
-              selectedSeats={selectedSeats}
-              onToggleSeat={onToggleSeat}
-            />
-          </div>
-          <div className="my-3 grid grid-cols-2 gap-3" aria-hidden="true">
-            <div className="rounded-full border border-sand/30 bg-sand/10 py-2 text-center text-[0.65rem] font-bold uppercase tracking-widest text-sand">Table</div>
-            <div className="rounded-full border border-sand/30 bg-sand/10 py-2 text-center text-[0.65rem] font-bold uppercase tracking-widest text-sand">Table</div>
-          </div>
-          <div className="rounded-[2rem] border border-ivory/15 bg-ivory/5 p-3 sm:p-4">
-            <SeatGroup
-              deckLabel={lowerDeck.label}
-              labels={lowerDeckSeatGroups[1]}
-              selectedSeats={selectedSeats}
-              onToggleSeat={onToggleSeat}
-            />
-            <p className="mt-3 text-center text-[0.65rem] font-bold uppercase tracking-[0.24em] text-sand">Lounge side two</p>
-          </div>
-        </div>
-      </article>
+          return (
+            <button
+              key={deck.id}
+              type="button"
+              aria-controls={`${deck.id}-deck-plan`}
+              aria-pressed={activeDeck === deck.id}
+              onClick={() => setActiveDeck(deck.id)}
+              className={cn(
+                "min-h-11 rounded-full px-3 text-sm font-bold transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ember/45",
+                activeDeck === deck.id
+                  ? "bg-ink text-ivory shadow-md"
+                  : "text-ink/70 hover:bg-ivory",
+              )}
+            >
+              <span className="block">{deck.label}</span>
+              <span className={cn("block text-[0.65rem] font-semibold", activeDeck === deck.id ? "text-sand" : "text-ink/50")}>
+                {countText}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="mt-6 grid items-start gap-7 lg:grid-cols-2">
+        {boatDecks.map((deck) => {
+          const isActive = activeDeck === deck.id;
+          const selectedCount = selectedCountForDeck(deck.id, selectedSeats);
+
+          return (
+            <article
+              key={deck.id}
+              id={`${deck.id}-deck-plan`}
+              aria-labelledby={`${deck.id}-deck-heading`}
+              data-deck={deck.id}
+              className={cn(
+                "boat-plan overflow-hidden rounded-[2.25rem] border border-ink/15 bg-[#211511] text-ivory shadow-2xl",
+                !isActive && "hidden lg:block",
+              )}
+            >
+              <header className="grid min-h-[9.75rem] grid-cols-[1fr_auto] items-start gap-3 border-b border-ivory/10 bg-[linear-gradient(120deg,rgba(189,79,50,.34),transparent_62%)] px-5 py-5 sm:px-7">
+                <div>
+                  <p className="text-[0.65rem] font-bold uppercase tracking-[0.25em] text-[#e9a077]">{deck.eyebrow}</p>
+                  <h3 id={`${deck.id}-deck-heading`} className="mt-1 font-serif text-3xl sm:text-4xl">{deck.label}</h3>
+                  <p className="mt-2 max-w-md text-sm leading-6 text-ivory/68">{deck.description}</p>
+                </div>
+                <div className="flex min-w-16 flex-col items-center rounded-2xl border border-ivory/15 bg-black/20 px-2 py-3 text-center">
+                  {deck.id === "upper" ? <Compass size={20} aria-hidden="true" /> : <Anchor size={20} aria-hidden="true" />}
+                  <span className="mt-1 text-[0.6rem] font-bold uppercase tracking-wider text-sand">
+                    {selectedCount} chosen
+                  </span>
+                </div>
+              </header>
+
+              <div className="boat-plan__stage relative mx-auto aspect-[2/3] w-full max-w-[34rem]" data-testid={`${deck.id}-deck-stage`}>
+                <BoatDeckArtwork deck={deck.id} />
+                <div className="absolute inset-0" aria-label={`${deck.label} passenger seats`}>
+                  {deck.seats.map((seat) => (
+                    <SeatButton
+                      key={seat.label}
+                      deckLabel={deck.label}
+                      seat={seat}
+                      isSelected={selectedSeats.includes(seat.label)}
+                      onToggle={onToggleSeat}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <footer className="border-t border-ivory/10 bg-black/20 px-5 py-4 text-xs leading-5 text-ivory/65 sm:px-7">
+                <span className="font-bold uppercase tracking-[0.18em] text-sand">
+                  {deck.id === "upper" ? "Bow at top · Crew at stern" : "Cabin entry at stern"}
+                </span>
+                <span className="mt-1 block">Each letter is an independent passenger preference. Driver and crew areas are not selectable.</span>
+              </footer>
+            </article>
+          );
+        })}
+      </div>
+
+      <p className="mx-auto mt-5 max-w-3xl text-center text-sm leading-6 text-ink/65">
+        Upper Deck contains seats A–J. Lower Deck contains seats K–T. Switching decks keeps every choice you make.
+      </p>
     </div>
   );
 }

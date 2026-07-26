@@ -1,33 +1,48 @@
 import { cn } from "@/lib/utils";
-import type { SeatLabel } from "../seat-map";
+import type { BoatSeat } from "../seat-map";
 
 type SeatButtonProps = {
   deckLabel: string;
-  label: SeatLabel;
+  seat: BoatSeat;
   isSelected: boolean;
-  onToggle: (label: SeatLabel) => void;
+  onToggle: (label: BoatSeat["label"]) => void;
 };
 
 export function SeatButton({
   deckLabel,
-  label,
+  seat,
   isSelected,
   onToggle,
 }: SeatButtonProps) {
   return (
     <button
       type="button"
-      aria-label={`${deckLabel} seat ${label}`}
+      aria-label={`${deckLabel} seat ${seat.label}`}
       aria-pressed={isSelected}
-      onClick={() => onToggle(label)}
+      data-seat={seat.label}
+      data-visual-variant={seat.variant}
+      onClick={() => onToggle(seat.label)}
       className={cn(
-        "flex min-h-11 min-w-0 items-center justify-center rounded-xl border-2 px-1 text-sm font-bold shadow-sm transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-ember sm:min-h-14 sm:rounded-2xl sm:text-base",
-        isSelected
-          ? "border-ivory bg-ember text-white"
-          : "border-ink/25 bg-ivory text-ink hover:border-ember hover:bg-white",
+        "boat-seat absolute z-10 flex items-center justify-center font-bold",
+        `boat-seat--${seat.variant}`,
+        isSelected && "boat-seat--selected",
       )}
+      style={{
+        left: `${seat.x}%`,
+        top: `${seat.y}%`,
+        width: `${seat.width}%`,
+        height: `${seat.height}%`,
+        transform: `translate(-50%, -50%) rotate(${seat.rotation}deg)`,
+      }}
     >
-      <span aria-hidden="true">{isSelected ? `✓ ${label}` : label}</span>
+      <span className="boat-seat__label" aria-hidden="true">
+        {seat.label}
+      </span>
+      {isSelected && (
+        <span className="boat-seat__check" aria-hidden="true">
+          ✓
+        </span>
+      )}
     </button>
   );
 }

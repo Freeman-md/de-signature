@@ -45,6 +45,31 @@ describe("integrated package and seat reservation flow", () => {
     expect(seatT.getAttribute("aria-pressed")).toBe("true");
   });
 
+  it("preserves selections while switching the inspected deck", () => {
+    render(<ReservationFlow phoneNumber="2348012345678" />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Upper Deck seat C" }));
+    fireEvent.click(screen.getByRole("button", { name: /Lower Deck 0 selected/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Lower Deck seat R" }));
+    fireEvent.click(screen.getByRole("button", { name: /Upper Deck 1 selected/ }));
+
+    expect(
+      screen.getByRole("button", { name: "Upper Deck seat C" }).getAttribute("aria-pressed"),
+    ).toBe("true");
+    expect(
+      screen.getByRole("button", { name: "Lower Deck seat R" }).getAttribute("aria-pressed"),
+    ).toBe("true");
+    expect(screen.getByText("C, R")).toBeTruthy();
+  });
+
+  it("does not expose driver or crew regions as passenger controls", () => {
+    render(<ReservationFlow phoneNumber="2348012345678" />);
+
+    expect(screen.queryByRole("button", { name: /driver/i })).toBeNull();
+    expect(screen.queryByRole("button", { name: /crew/i })).toBeNull();
+    expect(screen.getAllByRole("button", { name: /Deck seat [A-T]$/ })).toHaveLength(20);
+  });
+
   it("keeps the final action unavailable until a package and seat are selected", () => {
     render(<ReservationFlow phoneNumber="2348012345678" />);
 
